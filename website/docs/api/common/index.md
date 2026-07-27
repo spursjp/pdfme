@@ -1,6 +1,6 @@
 ---
 id: "index"
-title: "@pdfme/common"
+title: "@spursjp/pdfme-common"
 slug: "/api/common/"
 sidebar_label: "Exports"
 sidebar_position: 0.5

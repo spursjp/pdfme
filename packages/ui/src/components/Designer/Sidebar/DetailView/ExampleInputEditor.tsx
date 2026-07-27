@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { SchemaForUI } from '@pdfme/common';
+import { SchemaForUI } from '@spursjp/pdfme-common';
 import { readFiles } from '../../../../helper';
 import { FontContext, I18nContext } from '../../../../contexts';
 import { SidebarProps } from '..';

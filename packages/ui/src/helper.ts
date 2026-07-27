@@ -17,7 +17,8 @@ import {
   DEFAULT_FONT_SIZE,
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_LINE_HEIGHT,
-} from '@pdfme/common';
+}  from '@spursjp/pdfme-common';
+
 import { ZOOM, RULER_HEIGHT } from './constants';
 
 export const uuid = () =>
@@ -155,36 +156,36 @@ export const initShortCuts = (arg: {
         break;
       case rmWin:
       case rmMac:
-        arg.remove();
+        //arg.remove();
         break;
       case esc:
-        arg.esc();
+        //arg.esc();
         break;
       case copyWin:
       case copyMac:
-        arg.copy();
+        //arg.copy();
         break;
       case pasteWin:
       case pasteMac:
-        arg.paste();
+        //arg.paste();
         break;
       case redoWin:
       case redoMac:
-        arg.redo();
+        //arg.redo();
         break;
       case undoWin:
       case undoMac:
-        arg.undo();
+        //arg.undo();
         break;
       case saveWin:
       case saveMac:
-        e.preventDefault();
-        arg.save();
+       // e.preventDefault();
+      //  arg.save();
         break;
       case selectAllWin:
       case selectAllMac:
-        e.preventDefault();
-        arg.selectAll();
+       // e.preventDefault();
+        //arg.selectAll();
         break;
       default:
         break;
@@ -304,7 +305,7 @@ export const b64toBlob = (base64: string) => {
 const sortSchemasList = (template: Template, pageNum: number): SchemaForUI[][] =>
   new Array(pageNum).fill('').reduce((acc, _, i) => {
     acc.push(
-      template.schemas[i]
+      template.schemas && template.schemas[i]
         ? Object.entries(template.schemas[i])
           .sort((a, b) => {
             const aIndex = (template.columns ?? []).findIndex((c) => c === a[0]);
@@ -330,7 +331,7 @@ const sortSchemasList = (template: Template, pageNum: number): SchemaForUI[][] =
 
 export const templateSchemas2SchemasList = async (_template: Template) => {
   const template = cloneDeep(_template);
-  const sortedSchemasList = sortSchemasList(template, template.schemas.length);
+  const sortedSchemasList = sortSchemasList(template, template.schemas ? template.schemas.length : 0);
   const basePdf = await getB64BasePdf(template.basePdf);
   const pdfBlob = b64toBlob(basePdf);
   const pageSizes = await getPdfPageSizes(pdfBlob);

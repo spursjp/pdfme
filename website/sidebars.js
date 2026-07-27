@@ -41,7 +41,7 @@ const sidebars = {
       items: [
         {
           type: 'category',
-          label: '@pdfme/common',
+          label: '@spursjp/pdfme-common',
           link: { type: 'doc', id: 'api/common/index' },
           items: ['api/common/index'],
         },

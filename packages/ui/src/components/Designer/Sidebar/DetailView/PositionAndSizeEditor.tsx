@@ -1,11 +1,11 @@
 import React, { CSSProperties, useContext } from 'react';
-import { SchemaForUI } from '@pdfme/common';
+import { SchemaForUI } from '@spursjp/pdfme-common';
 import { round } from '../../../../helper';
 import { SidebarProps } from '../index';
 import { FontContext } from '../../../../contexts';
-
+import { RULER_HEIGHT, PAGE_BOTTTOM_Y } from '../../../../constants';
 const inputSetStyle: CSSProperties = { marginRight: '1rem', display: 'flex', alignItems: 'center' };
-
+const QRCODE_MAX_SIZE = 50;
 const inputStyle: CSSProperties = {
   width: 70,
   border: '1px solid #767676',
@@ -34,12 +34,38 @@ const svgBaseProp = {
 };
 
 const PositionAndSizeEditor = (
-  props: Pick<SidebarProps, 'pageSize' | 'schemas' | 'changeSchemas' | 'activeElements'> & {
+  props: Pick<
+    SidebarProps,
+    'pageSize' | 'schemas' | 'changeSchemas' | 'activeElements' | 'tonboSize'
+  > & {
     activeSchema: SchemaForUI;
   }
 ) => {
   const font = useContext(FontContext);
-  const { changeSchemas, schemas, activeSchema, activeElements, pageSize } = props;
+  const { changeSchemas, schemas, activeSchema, activeElements, pageSize, tonboSize } = props;
+
+  const getMin = (type: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => {
+    /**if (type === 'center' || type === 'middle' || type === 'bottom') return 28.1;
+
+    //f(type === "left") return tonboSize ? tonboSize.width : 0
+    if (type === 'left') return 28.1;
+    if (type === 'right') return 28.1;
+    if (type === 'top') return 28.1; **/
+    return RULER_HEIGHT ? RULER_HEIGHT : 0; //28.1
+    //return 0;
+  };
+
+  const getMax = (type: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => {
+    if (type === 'left') {
+      return 0;
+    }
+    if (type === 'middle' || type === 'bottom') {
+      return PAGE_BOTTTOM_Y;
+    }
+    if (type === 'right' || type === 'center') return pageSize.width - RULER_HEIGHT; //221
+
+    return 0;
+  };
 
   const align = (type: 'left' | 'center' | 'right' | 'top' | 'middle' | 'bottom') => {
     const ids = activeElements.map((ae) => ae.id);
@@ -51,8 +77,10 @@ const PositionAndSizeEditor = (
     const isSingle = ass.length === 1;
     const root = pageSize[tgtSize];
 
-    const min = isSingle ? 0 : Math.min(...ass.map((as) => as.position[tgtPos]));
-    const max = isSingle ? root : Math.max(...ass.map((as) => as.position[tgtPos] + as[tgtSize]));
+    const min = isSingle ? getMin(type) : Math.min(...ass.map((as) => as.position[tgtPos]));
+    const max = isSingle
+      ? getMax(type)
+      : Math.max(...ass.map((as) => as.position[tgtPos] + as[tgtSize]));
 
     let basePos = min;
     let adjust = (_: number) => 0;
@@ -63,14 +91,19 @@ const PositionAndSizeEditor = (
     } else if (['right', 'bottom'].includes(type)) {
       basePos = max;
       adjust = (num: number) => num;
+    } else if (['left', 'top'].includes(type)) {
+      basePos = min;
+      adjust = (num: number) => 0;
     }
 
     changeSchemas(
-      ass.map((as) => ({
-        key: `position.${tgtPos}`,
-        value: round(basePos - adjust(as[tgtSize]), 2),
-        schemaId: as.id,
-      }))
+      ass.map((as) => {
+        return {
+          key: `position.${tgtPos}`,
+          value: isSingle ? basePos - adjust(as[tgtSize]) : round(basePos - adjust(as[tgtSize]), 2),
+          schemaId: as.id,
+        };
+      })
     );
   };
 
@@ -186,8 +219,12 @@ const PositionAndSizeEditor = (
   ];
 
   return (
-    <section>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+    <section className="tool-box01">
+      <label htmlFor="box-position">BOXの位置 / 大きさ</label>
+      <div
+        className="position-box"
+        style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}
+      >
         {layoutBtns.map((b) => (
           <button key={b.id} title={b.id} onClick={b.action} style={buttonStyle}>
             <object width={15} height={15}>
@@ -228,6 +265,7 @@ const PositionAndSizeEditor = (
           <span style={{ fontSize: '0.6rem' }}>mm</span>
         </div>
       </div>
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={inputSetStyle}>
           <label htmlFor="input-width" style={{ width: 17 }}>
@@ -239,9 +277,17 @@ const PositionAndSizeEditor = (
             style={inputStyle}
             type="number"
             onChange={(e) => {
-              const value = Number(e.target.value);
+              var value = Number(e.target.value);
               if (value >= 0 && activeSchema.position.x + value < pageSize.width) {
-                changeSchemas([{ key: 'width', value, schemaId: activeSchema.id }]);
+                if (activeSchema.type === 'qrcode') {
+                  if (value > QRCODE_MAX_SIZE) value = QRCODE_MAX_SIZE;
+                  changeSchemas([
+                    { key: 'width', value, schemaId: activeSchema.id },
+                    { key: 'height', value, schemaId: activeSchema.id },
+                  ]);
+                } else {
+                  changeSchemas([{ key: 'width', value, schemaId: activeSchema.id }]);
+                }
               }
             }}
             value={activeSchema.width}
@@ -258,9 +304,17 @@ const PositionAndSizeEditor = (
             style={inputStyle}
             type="number"
             onChange={(e) => {
-              const value = Number(e.target.value);
+              var value = Number(e.target.value);
               if (value >= 0 && activeSchema.position.y + value < pageSize.height) {
-                changeSchemas([{ key: 'height', value, schemaId: activeSchema.id }]);
+                if (activeSchema.type === 'qrcode') {
+                  if (value > QRCODE_MAX_SIZE) value = QRCODE_MAX_SIZE;
+                  changeSchemas([
+                    { key: 'height', value, schemaId: activeSchema.id },
+                    { key: 'width', value, schemaId: activeSchema.id },
+                  ]);
+                } else {
+                  changeSchemas([{ key: 'height', value, schemaId: activeSchema.id }]);
+                }
               }
             }}
             value={activeSchema.height}

@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect, useContext, useCallback } from 'react';
-import { DesignerReactProps, Template, SchemaForUI, SchemaType } from '@pdfme/common';
+import { DesignerReactProps, Template, SchemaForUI,SchemaType } from '@spursjp/pdfme-common';
 import Sidebar from './Sidebar/index';
 import Main from './Main/index';
 import { ZOOM, RULER_HEIGHT } from '../../constants';
@@ -22,14 +22,20 @@ import {
 import { useUIPreProcessor, useScrollPageCursor } from '../../hooks';
 import Root from '../Root';
 import Error from '../Error';
-import CtlBar from '../CtlBar/index';
+//import CtlBar from '../CtlBar/index';
 
 const TemplateEditor = ({
   template,
+  verticalGuidelines,
+  horizontalGuidelines,
   size,
+  specification,
+  bgSize,
+  tonboSize,
   onSaveTemplate,
   onChangeTemplate,
 }: DesignerReactProps & { onChangeTemplate: (t: Template) => void }) => {
+
   const copiedSchemas = useRef<SchemaForUI[] | null>(null);
   const past = useRef<SchemaForUI[][]>([]);
   const future = useRef<SchemaForUI[][]>([]);
@@ -45,6 +51,8 @@ const TemplateEditor = ({
   const [zoomLevel, setZoomLevel] = useState(1);
 
   const { backgrounds, pageSizes, scale, error } = useUIPreProcessor({ template, size, zoomLevel });
+
+
 
   const onEdit = (targets: HTMLElement[]) => {
     setActiveElements(targets);
@@ -228,7 +236,7 @@ const TemplateEditor = ({
 
   return (
     <Root size={size} scale={scale}>
-      <CtlBar
+      {/** <CtlBar
         size={size}
         pageCursor={pageCursor}
         pageNum={schemasList.length}
@@ -245,7 +253,7 @@ const TemplateEditor = ({
           }
           setZoomLevel(zoom);
         }}
-      />
+      />*/}
       <Sidebar
         hoveringSchemaId={hoveringSchemaId}
         onChangeHoveringSchemaId={onChangeHoveringSchemaId}
@@ -262,16 +270,22 @@ const TemplateEditor = ({
         }}
         onEditEnd={onEditEnd}
         addSchema={addSchema}
+        tonboSize={tonboSize}
       />
       <Main
         ref={mainRef}
         paperRefs={paperRefs}
+        specification={specification}
         hoveringSchemaId={hoveringSchemaId}
+        verticalGuidelines={verticalGuidelines ? verticalGuidelines :[]}
+        horizontalGuidelines={horizontalGuidelines ? horizontalGuidelines :[]}
         onChangeHoveringSchemaId={onChangeHoveringSchemaId}
         height={size.height - RULER_HEIGHT * ZOOM}
         pageCursor={pageCursor}
         scale={scale}
         size={size}
+        bgSize={bgSize}
+        tonboSize={tonboSize}
         pageSizes={pageSizes}
         backgrounds={backgrounds}
         activeElements={activeElements}

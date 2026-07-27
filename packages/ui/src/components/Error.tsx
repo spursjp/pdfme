@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Size } from '@pdfme/common';
+import { Size } from '@spursjp/pdfme-common';
 import { I18nContext } from '../contexts';
 
 const Error = ({ size, error }: { size: Size; error: Error }) => {

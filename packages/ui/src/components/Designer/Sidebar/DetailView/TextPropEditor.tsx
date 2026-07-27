@@ -6,7 +6,7 @@ import {
   DEFAULT_LINE_HEIGHT,
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
-} from '@pdfme/common';
+} from '@spursjp/pdfme-common';
 import { FontContext } from '../../../../contexts';
 import { SidebarProps } from '..';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -92,9 +92,10 @@ const SelectSet = (props: {
   label: string;
   value: string;
   options: string[];
+  option_labels:string[];
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }) => {
-  const { label, value, options, onChange } = props;
+  const { label, value, options, option_labels, onChange } = props;
   const formattedLabel = label.replace(/\s/g, '');
 
   return (
@@ -107,9 +108,9 @@ const SelectSet = (props: {
         onChange={onChange}
         value={value}
       >
-        {options.map((o) => (
+        {options.map((o,index) => (
           <option key={o} value={o}>
-            {o}
+            {option_labels.length > index ? option_labels[index] : o}
           </option>
         ))}
       </select>
@@ -145,6 +146,7 @@ const TextPropEditor = (
 ) => {
   const { changeSchemas, activeSchema } = props;
   const alignments = ['left', 'center', 'right'];
+  const alignments_jp = ['左寄せ', '中央', '右寄せ'];
   const font = useContext(FontContext);
   const fallbackFontName = getFallbackFontName(font);
 
@@ -161,18 +163,20 @@ const TextPropEditor = (
         }}
       >
         <SelectSet
-          label={'FontName'}
+          label={'文字'}
           value={activeSchema.fontName ?? fallbackFontName}
           options={Object.keys(font)}
+          option_labels = {[]}
           onChange={(e) => {
             changeSchemas([{ key: 'fontName', value: e.target.value, schemaId: activeSchema.id }]);
           }}
         />
 
         <SelectSet
-          label={'Alignment'}
+          label={'位置合わせ'}
           value={activeSchema.alignment ?? 'left'}
           options={alignments}
+          option_labels = {alignments_jp}
           onChange={(e) =>
             changeSchemas([{ key: 'alignment', value: e.target.value, schemaId: activeSchema.id }])
           }
@@ -188,27 +192,32 @@ const TextPropEditor = (
       >
         <NumberInputSet
           width="30%"
-          label={'FontSize(pt)'}
+          label={'サイズ'}
+          minNumber={5}
+          maxNumber={99}
           value={activeSchema.fontSize ?? DEFAULT_FONT_SIZE}
           onChange={(e) => {
+           
             const currentFontSize = Number(e.target.value);
-            const dynamincFontSizeMinAdjust = activeSchema.dynamicFontSize && activeSchema.dynamicFontSize.min > currentFontSize;
+            if(currentFontSize >= 5 && currentFontSize <= 99){
+              const dynamincFontSizeMinAdjust = activeSchema.dynamicFontSize && activeSchema.dynamicFontSize.min > currentFontSize;
 
-            changeSchemas([
-              { key: 'fontSize', value: currentFontSize, schemaId: activeSchema.id },
-              ...(dynamincFontSizeMinAdjust
-                ? [{
-                      key: 'dynamicFontSize.min',
-                      value: currentFontSize,
-                      schemaId: activeSchema.id,
-                    }]
-                : []),
-            ]);
+              changeSchemas([
+                { key: 'fontSize', value: currentFontSize, schemaId: activeSchema.id },
+                ...(dynamincFontSizeMinAdjust
+                  ? [{
+                        key: 'dynamicFontSize.min',
+                        value: currentFontSize,
+                        schemaId: activeSchema.id,
+                      }]
+                  : []),
+              ]);
+            }
           }}
         />
         <NumberInputSet
           width="30%"
-          label={'LineHeight(em)'}
+          label={'行の高さ'}
           value={activeSchema.lineHeight ?? DEFAULT_LINE_HEIGHT}
           onChange={(e) =>
             changeSchemas([
@@ -219,7 +228,7 @@ const TextPropEditor = (
 
         <NumberInputSet
           width="40%"
-          label={'CharacterSpacing(pt)'}
+          label={'文字間隔'}
           value={activeSchema.characterSpacing ?? DEFAULT_CHARACTER_SPACING}
           onChange={async (e) => {
             const currentCharacterSpacing = Number(e.target.value);
@@ -238,6 +247,7 @@ const TextPropEditor = (
           marginBottom: '0.25rem',
         }}
       >
+        {/** 
         <CheckboxSet
           width="100%"
           label="Use dynamic font size"
@@ -252,7 +262,7 @@ const TextPropEditor = (
               },
             ]);
           }}
-        />
+        />*/}
 
         {activeSchema.dynamicFontSize && (
           <>
@@ -289,7 +299,7 @@ const TextPropEditor = (
         }}
       >
         <ColorInputSet
-          label={'FontColor'}
+          label={'文字の色'}
           value={activeSchema.fontColor ?? '#000000'}
           onChange={(e) =>
             changeSchemas([{ key: 'fontColor', value: e.target.value, schemaId: activeSchema.id }])
@@ -302,7 +312,7 @@ const TextPropEditor = (
         />
 
         <ColorInputSet
-          label={'Background'}
+          label={'BOXの背景色'}
           value={activeSchema.backgroundColor ?? '#ffffff'}
           onChange={(e) =>
             changeSchemas([

@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
-import { SchemaForUI } from '@pdfme/common';
+import { SchemaForUI } from '@spursjp/pdfme-common';
 import { I18nContext } from '../../../../contexts';
 import Item from './Item';
 import { useMountStatus } from '../../../../hooks';

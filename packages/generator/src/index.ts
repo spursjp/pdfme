@@ -1,6 +1,8 @@
 import generate from './generate.js';
 import {
   BLANK_PDF,
+  BLANK_PDF_V,
+  BLANK_PDF_Z,
   DEFAULT_FONT_VALUE,
   isTextSchema,
   isImageSchema,
@@ -11,7 +13,7 @@ import {
   checkDesignerProps,
   checkGenerateProps,
   validateBarcodeInput,
-} from '@pdfme/common';
+} from '@spursjp/pdfme-common';
 import type {
   Lang,
   Size,
@@ -33,11 +35,13 @@ import type {
   UIProps,
   PreviewProps,
   DesignerProps,
-} from '@pdfme/common';
+} from '@spursjp/pdfme-common';
 
 export {
   generate,
   BLANK_PDF,
+  BLANK_PDF_V,
+  BLANK_PDF_Z,
   DEFAULT_FONT_VALUE,
   isTextSchema,
   isImageSchema,

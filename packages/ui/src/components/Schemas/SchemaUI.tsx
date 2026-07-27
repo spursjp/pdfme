@@ -1,5 +1,5 @@
 import React, { forwardRef, RefObject, Ref, ReactNode } from 'react';
-import { SchemaForUI, isTextSchema, isImageSchema, isBarcodeSchema } from '@pdfme/common';
+import { SchemaForUI, isTextSchema, isImageSchema, isBarcodeSchema } from '@spursjp/pdfme-common';
 import { ZOOM, SELECTABLE_CLASSNAME } from '../../constants';
 import TextSchema from './TextSchema';
 import ImageSchema from './ImageSchema';
@@ -25,7 +25,7 @@ const Wrapper = ({
   schema,
 }: Props & { children: ReactNode }) => (
   <div
-    title={schema.key}
+    title={schema.type}
     onMouseEnter={() => onChangeHoveringSchemaId && onChangeHoveringSchemaId(schema.id)}
     onMouseLeave={() => onChangeHoveringSchemaId && onChangeHoveringSchemaId(null)}
     className={SELECTABLE_CLASSNAME}

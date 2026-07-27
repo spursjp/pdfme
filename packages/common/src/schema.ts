@@ -34,15 +34,18 @@ export const TextSchema = CommonSchema.extend({
   backgroundColor: z.string().optional(),
   characterSpacing: z.number().optional(),
   lineHeight: z.number().optional(),
+  name:z.string().optional(),
+  longestdata:z.string().optional(),
   dynamicFontSize: z.object({
     max: z.number(),
     min: z.number(),
+   
   }).optional(),
 });
 
 export const ImageSchema = CommonSchema.extend({ type: z.literal(SchemaType.Enum.image) });
 
-export const BarcodeSchema = CommonSchema.extend({ type: BarcodeSchemaType });
+export const BarcodeSchema = CommonSchema.extend({ type: BarcodeSchemaType, name:z.string().optional() });
 
 export const Schema = z.union([TextSchema, ImageSchema, BarcodeSchema]);
 
@@ -70,15 +73,16 @@ export const Font = z.record(
 export const BasePdf = z.union([z.string(), ArrayBufferSchema, Uint8ArraySchema]);
 
 export const Template = z.object({
-  schemas: z.array(z.record(Schema)),
+  schemas: z.array(z.record(Schema)).optional(),
   basePdf: BasePdf,
-  sampledata: z.array(z.record(z.string())).length(1).optional(),
-  columns: z.array(z.string()).optional(),
+  sampledata: z.array(z.record(z.string())).optional(),
+  longestdata: z.array(z.record(z.string())).optional(),
+  columns: z.array(z.string()).optional(),  
 });
 
 export const Inputs = z.array(z.record(z.string())).min(1);
 
-const CommonOptions = z.object({ font: Font.optional() });
+const CommonOptions = z.object({ font: Font.optional(), sub_page:Template.optional() });
 
 export const CommonProps = z.object({
   template: Template,
@@ -98,7 +102,7 @@ export const SchemaInputs = z.record(z.string());
 
 // ---------------------------------------------
 
-export const UIOptions = CommonOptions.extend({ lang: Lang.optional() });
+export const UIOptions = CommonOptions.extend({ lang: Lang.optional(), horizontalGuidelines:z.array(z.number()).optional() , verticalGuidelines:z.array(z.number()).optional() });
 
 const HTMLElementSchema: z.ZodSchema<HTMLElement> = z.any().refine((v) => v instanceof HTMLElement);
 
@@ -121,8 +125,13 @@ export const PreviewReactProps = PreviewProps.omit({ domContainer: true }).exten
 
 // ---------------Designer---------------
 
-export const DesignerProps = UIProps.extend({}).strict();
+export const DesignerProps = UIProps.extend({});
 export const DesignerReactProps = DesignerProps.omit({ domContainer: true }).extend({
+  horizontalGuidelines:z.array(z.number()).optional(),
+  verticalGuidelines:z.array(z.number()).optional(),
   onSaveTemplate: z.function().args(Template).returns(z.void()),
   size: Size,
+  specification:z.string(),
+  bgSize:z.object({ width: z.number(),  height: z.number() }),
+  tonboSize:z.object({ width: z.number(),  height: z.number() })
 });

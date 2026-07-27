@@ -31,7 +31,7 @@ import {
   DEFAULT_CHARACTER_SPACING,
   DEFAULT_FONT_COLOR,
   calculateDynamicFontSize,
-} from '@pdfme/common';
+} from '@spursjp/pdfme-common';
 
 export interface InputImageCache {
   [key: string]: PDFImage | undefined;
@@ -48,8 +48,16 @@ export const createBarCode = async (arg: {
   const { type, input, width, height, backgroundColor } = arg;
   const bcid = barCodeType2Bcid(type);
   const includetext = true;
-  const scale = 5;
-  const bwipjsArg: ToBufferOptions = { bcid, text: input, width, height, scale, includetext };
+  const scale = 3;
+  const bwipjsArg: ToBufferOptions = {
+    bcid,
+    text: input,
+    width,
+    height,
+    scale,
+    includetext,
+    monochrome: true,
+  };
 
   if (backgroundColor) {
     bwipjsArg.backgroundcolor = backgroundColor;
@@ -167,8 +175,18 @@ const hex2RgbColor = (hexString: string | undefined) => {
   return undefined;
 };
 
-const getFontProp = async ({ input, font, schema }: { input: string, font: Font, schema: TextSchema }) => {
-  const size = schema.dynamicFontSize ? await calculateDynamicFontSize({ textSchema: schema, font, input }) : schema.fontSize ?? DEFAULT_FONT_SIZE;
+const getFontProp = async ({
+  input,
+  font,
+  schema,
+}: {
+  input: string;
+  font: Font;
+  schema: TextSchema;
+}) => {
+  const size = schema.dynamicFontSize
+    ? await calculateDynamicFontSize({ textSchema: schema, font, input })
+    : schema.fontSize ?? DEFAULT_FONT_SIZE;
   const color = hex2RgbColor(schema.fontColor ?? DEFAULT_FONT_COLOR);
   const alignment = schema.alignment ?? DEFAULT_ALIGNMENT;
   const lineHeight = schema.lineHeight ?? DEFAULT_LINE_HEIGHT;
@@ -231,7 +249,7 @@ const getOverPosition = (inputLine: string, isOverEval: IsOverEval) => {
  */
 const getSplitPosition = (inputLine: string, isOverEval: IsOverEval) => {
   const overPos = getOverPosition(inputLine, isOverEval);
-  if (overPos === null) return inputLine.length;  // input line is shorter than the available space
+  if (overPos === null) return inputLine.length; // input line is shorter than the available space
 
   let overPosTmp = overPos;
   while (inputLine[overPosTmp] !== ' ' && overPosTmp >= 0) {
@@ -251,7 +269,8 @@ const getSplittedLines = (inputLine: string, isOverEval: IsOverEval): string[] =
   const splittedLine = inputLine.substring(0, splitPos);
   const rest = inputLine.substring(splitPos).trimStart();
 
-  if (rest.length === 0) { // end recursion if there is no rest
+  if (rest.length === 0) {
+    // end recursion if there is no rest
     return [splittedLine];
   }
 
@@ -277,12 +296,17 @@ const drawInputByTextSchema = async (arg: {
   const { input, templateSchema, page, pageHeight, fontSetting } = arg;
   const { font, pdfFontObj, fallbackFontName } = fontSetting;
 
-  const pdfFontValue = pdfFontObj[templateSchema.fontName ? templateSchema.fontName : fallbackFontName];
+  const pdfFontValue =
+    pdfFontObj[templateSchema.fontName ? templateSchema.fontName : fallbackFontName];
 
   drawBackgroundColor({ templateSchema, page, pageHeight });
 
   const { width, rotate } = getSchemaSizeAndRotate(templateSchema);
-  const { size, color, alignment, lineHeight, characterSpacing } = await getFontProp({ input, font, schema: templateSchema });
+  const { size, color, alignment, lineHeight, characterSpacing } = await getFontProp({
+    input,
+    font,
+    schema: templateSchema,
+  });
 
   page.pushOperators(setCharacterSpacing(characterSpacing));
 
@@ -291,7 +315,8 @@ const drawInputByTextSchema = async (arg: {
   input.split(/\r|\n|\r\n/g).forEach((inputLine, inputLineIndex) => {
     const isOverEval = (testString: string) => {
       const testStringWidth =
-        pdfFontValue.widthOfTextAtSize(testString, size) + (testString.length - 1) * characterSpacing;
+        pdfFontValue.widthOfTextAtSize(testString, size) +
+        (testString.length - 1) * characterSpacing;
       return width <= testStringWidth;
     };
     const splitedLines = getSplittedLines(inputLine, isOverEval);
@@ -383,7 +408,7 @@ const drawInputByBarcodeSchema = async (arg: {
 
 export const drawInputByTemplateSchema = async (arg: {
   input: string;
-  templateSchema: Schema;
+  templateSchema: Schema | null;
   pdfDoc: PDFDocument;
   page: PDFPage;
   pageHeight: number;

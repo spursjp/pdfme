@@ -1,11 +1,11 @@
 import React, { useState, useContext } from 'react';
-import { SchemaForUI, Size } from '@pdfme/common';
+import { SchemaForUI, Size } from '@spursjp/pdfme-common';
 import { RULER_HEIGHT, SIDEBAR_WIDTH } from '../../../constants';
 import { I18nContext, FontContext } from '../../../contexts';
 import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import ListView from './ListView/index';
 import DetailView from './DetailView/index';
-import { getFallbackFontName } from '@pdfme/common';
+import { getFallbackFontName } from '@spursjp/pdfme-common';
 
 export type SidebarProps = {
   height: number;
@@ -27,10 +27,11 @@ export type SidebarProps = {
     }[]
   ) => void;
   addSchema: () => void;
+  tonboSize:Size;
 };
 
 const Sidebar = (props: SidebarProps) => {
-  const { height, size, activeElements, schemas, addSchema } = props;
+  const { height, size, activeElements, schemas, addSchema,tonboSize } = props;
 
   const i18n = useContext(I18nContext);
   const fonts = useContext(FontContext);
@@ -57,15 +58,16 @@ const Sidebar = (props: SidebarProps) => {
 
   return (
     <div
+       id="palette-box"
       style={{
         position: 'absolute',
         right: 0,
-        zIndex: 1,
+        zIndex: 2,
         height: height ? height : '100%',
         width: open ? SIDEBAR_WIDTH : 0,
       }}
     >
-      <div style={{ position: 'sticky', top: 0, zIndex: 1, fontSize: '1rem' }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 1, fontSize: '1rem' }}> 
         <button
           style={{
             position: 'absolute',
@@ -89,11 +91,12 @@ const Sidebar = (props: SidebarProps) => {
           )}
         </button>
         <div
+          id="palette-boxin" 
           style={{
             width: SIDEBAR_WIDTH,
             height: size.height - RULER_HEIGHT - RULER_HEIGHT / 2,
             display: open ? 'block' : 'none',
-            top: RULER_HEIGHT / 2,
+            top: 0,
             right: 0,
             position: 'absolute',
             background: '#ffffffed',
@@ -112,6 +115,7 @@ const Sidebar = (props: SidebarProps) => {
           ) : (
             <DetailView {...props} activeSchema={getLastActiveSchema()} />
           )}
+          {/**
           <div
             style={{
               display: 'flex',
@@ -136,6 +140,7 @@ const Sidebar = (props: SidebarProps) => {
               <strong style={{ color: '#fff' }}>{i18n('addNewField')}</strong>
             </button>
           </div>
+           */}
         </div>
       </div>
     </div>

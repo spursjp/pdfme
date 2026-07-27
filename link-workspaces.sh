@@ -8,6 +8,6 @@ done
 
 for dir in generator ui; do
     cd "$dir"
-    npm link @pdfme/common
+    npm link @spursjp/pdfme-common
     cd ..
 done

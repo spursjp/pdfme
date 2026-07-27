@@ -1,4 +1,4 @@
-import { Lang } from '@pdfme/common';
+import { Lang } from '@spursjp/pdfme-common';
 
 type DictEn = typeof dictEn;
 

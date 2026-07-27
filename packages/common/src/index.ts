@@ -9,6 +9,8 @@ import {
   DEFAULT_FONT_SIZE_ADJUSTMENT,
   DEFAULT_PT_TO_MM_RATIO,
   BLANK_PDF,
+  BLANK_PDF_V,
+  BLANK_PDF_Z,
   DEFAULT_FONT_VALUE,
 } from './constants.js';
 import { schemaTypes, isImageSchema, isBarcodeSchema, isTextSchema } from './type.js';
@@ -65,6 +67,8 @@ export {
   DEFAULT_FONT_SIZE_ADJUSTMENT,
   DEFAULT_PT_TO_MM_RATIO,
   BLANK_PDF,
+  BLANK_PDF_V,
+  BLANK_PDF_Z,
   DEFAULT_FONT_VALUE,
   schemaTypes,
   isTextSchema,

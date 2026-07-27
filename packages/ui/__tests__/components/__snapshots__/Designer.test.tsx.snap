@@ -211,7 +211,7 @@ exports[`Designer snapshot 1`] = `
       </div>
     </div>
     <div
-      style="overflow: overlay;"
+      style="width:100%; overflow: overlay;"
     >
       <div
         class="selecto-selection rCS179bs95"

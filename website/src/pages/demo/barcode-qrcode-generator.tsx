@@ -12,6 +12,8 @@ const templateItems = ['qr_lines', 'qr_title', 'location_arrow', 'location_numbe
   imgUrl: `/img/templates/${c}.png`,
 }));
 
+const scale = 3; // 5から3に変更
+
 export default () => (
   <DemoAppGrid
     title={title}

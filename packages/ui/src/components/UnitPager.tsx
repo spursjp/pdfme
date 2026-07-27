@@ -5,7 +5,7 @@ import {
   ChevronRightIcon,
   ChevronDoubleRightIcon,
 } from '@heroicons/react/24/outline';
-import { Size } from '@pdfme/common';
+import { Size } from '@spursjp/pdfme-common';
 
 const buttonHeight = 38;
 const buttonWrapStyle: React.CSSProperties = {

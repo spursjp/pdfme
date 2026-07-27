@@ -17,10 +17,10 @@
     "sourceMap": true,
     "baseUrl": "..", 
     "paths": {
-      "@pdfme/common": ["packages/common/src"] 
+      "@spursjp/pdfme-common": ["packages/common/src"] 
     }
   },
   "baseUrl": ".",
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["./src/**/*", "src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules"]
 }

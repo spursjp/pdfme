@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { PreviewReactProps, SchemaForUI } from '@pdfme/common';
+import { PreviewReactProps, SchemaForUI } from '@spursjp/pdfme-common';
 import { ZOOM, RULER_HEIGHT } from '../constants';
 import UnitPager from './UnitPager';
 import Root from './Root';
@@ -89,9 +89,12 @@ const Preview = ({ template, inputs, size, onChangeInput }: PreviewReactProps) =
         paperRefs={paperRefs}
         scale={scale}
         size={size}
+        bgSize={{ height: Math.max(size.height, pageSizesHeightSum), width: size.width }}
+        tonboSize={{ height: Math.max(size.height, pageSizesHeightSum), width: size.width }}
         schemasList={schemasList}
         pageSizes={pageSizes}
         backgrounds={backgrounds}
+        specification="none"
         renderSchema={({ schema, index }) => {
           const { key } = schema;
           const data = (input && input[key]) || '';

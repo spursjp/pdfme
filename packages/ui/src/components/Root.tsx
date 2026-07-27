@@ -1,5 +1,5 @@
 import React, { useContext, forwardRef, ReactNode, Ref, useEffect } from 'react';
-import { Size } from '@pdfme/common';
+import { Size } from '@spursjp/pdfme-common';
 import { FontContext } from '../contexts';
 import Spinner from './Spinner';
 
@@ -32,7 +32,7 @@ const Root = ({ size, scale, children }: Props, ref: Ref<HTMLDivElement>) => {
   return (
     <div
       ref={ref}
-      style={{ position: 'relative', background: 'rgb(74, 74, 74)', overflow: 'overlay', ...size }}
+      style={{ position: 'relative', background: 'rgb(244, 244, 244)', overflow: 'hidden', ...size }}
     >
       <div style={{ margin: '0 auto', ...size }}>{scale === 0 ? <Spinner /> : children}</div>
     </div>

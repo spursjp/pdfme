@@ -1,5 +1,5 @@
 import React, { useState, forwardRef, ChangeEvent, Ref } from 'react';
-import { ImageSchema } from '@pdfme/common';
+import { ImageSchema } from '@spursjp/pdfme-common';
 import { SchemaUIProps } from './SchemaUI';
 import { readFiles } from '../../helper';
 import { ZOOM } from '../../constants';

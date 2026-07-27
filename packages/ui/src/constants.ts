@@ -6,6 +6,8 @@ export const ZOOM = 3.7795275591;
 
 export const SELECTABLE_CLASSNAME = 'selectable';
 
-export const RULER_HEIGHT = 30;
+export const RULER_HEIGHT = 28;
+
+export const PAGE_BOTTTOM_Y = 176;
 
 export const SIDEBAR_WIDTH = 300;

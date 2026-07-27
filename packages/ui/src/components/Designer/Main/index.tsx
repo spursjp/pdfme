@@ -9,7 +9,7 @@ import React, {
   useContext,
 } from 'react';
 import { OnDrag, OnResize, OnClick } from 'react-moveable';
-import { SchemaForUI, Size } from '@pdfme/common';
+import { SchemaForUI, Size } from '@spursjp/pdfme-common';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ZOOM, RULER_HEIGHT } from '../../../constants';
 import { usePrevious } from '../../../hooks';
@@ -18,10 +18,10 @@ import Paper from '../../Paper';
 import SchemaUI from '../../Schemas/SchemaUI';
 import Selecto from './Selecto';
 import Moveable from './Moveable';
-import Guides from './Guides';
+//import Guides from './Guides';
 import Mask from './Mask';
 import { FontContext } from '../../../contexts';
-
+const QRCODE_MAX_SIZE = 50;
 const DELETE_BTN_ID = uuid();
 const fmt4Num = (prop: string) => Number(prop.replace('px', ''));
 const fmt = (prop: string) => round(fmt4Num(prop) / ZOOM, 2);
@@ -69,12 +69,17 @@ interface Props {
   height: number;
   hoveringSchemaId: string | null;
   onChangeHoveringSchemaId: (id: string | null) => void;
+  horizontalGuidelines: number[];
+  verticalGuidelines: number[];
   pageCursor: number;
   schemasList: SchemaForUI[][];
   scale: number;
   backgrounds: string[];
   pageSizes: Size[];
   size: Size;
+  bgSize: Size;
+  tonboSize: Size;
+  specification: string;
   activeElements: HTMLElement[];
   onEdit: (targets: HTMLElement[]) => void;
   changeSchemas: (objs: { key: string; value: string | number; schemaId: string }[]) => void;
@@ -84,15 +89,21 @@ interface Props {
 
 const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
   const {
+    horizontalGuidelines,
+    verticalGuidelines,
     pageCursor,
     scale,
+    specification,
     backgrounds,
     pageSizes,
     size,
+    bgSize,
+    tonboSize,
     activeElements,
     schemasList,
     hoveringSchemaId,
   } = props;
+
   const { onEdit, changeSchemas, removeSchemas, onChangeHoveringSchemaId, paperRefs } = props;
 
   const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -102,6 +113,7 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
   const font = useContext(FontContext);
 
   const [isPressShiftKey, setIsPressShiftKey] = useState(false);
+  const [keepRatio, setKeepRation] = useState(false);
   const [editing, setEditing] = useState(false);
 
   const prevSchemas = usePrevious(schemasList[pageCursor]);
@@ -123,6 +135,10 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
     window.removeEventListener('keydown', onKeydown);
     window.removeEventListener('keyup', onKeyup);
   }, []);
+
+  useEffect(() => {
+    setKeepRation(isPressShiftKey);
+  }, [isPressShiftKey]);
 
   useEffect(() => {
     initEvents();
@@ -168,12 +184,26 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
   const onResizeEnd = async ({ target }: { target: HTMLElement | SVGElement }) => {
     const { id, style } = target;
     const { width, height, top, left } = style;
-    changeSchemas([
-      { key: 'width', value: fmt(width), schemaId: id },
-      { key: 'height', value: fmt(height), schemaId: id },
-      { key: 'position.y', value: fmt(top), schemaId: id },
-      { key: 'position.x', value: fmt(left), schemaId: id },
-    ]);
+    const title = target.getAttribute('title');
+    if (title === 'qrcode') {
+      var _width = fmt(width);
+      var _height = fmt(height);
+      if (_width > QRCODE_MAX_SIZE) _width = QRCODE_MAX_SIZE;
+      if (_height > QRCODE_MAX_SIZE) _height = QRCODE_MAX_SIZE;
+      changeSchemas([
+        { key: 'width', value: _width, schemaId: id },
+        { key: 'height', value: _height, schemaId: id },
+        { key: 'position.y', value: fmt(top), schemaId: id },
+        { key: 'position.x', value: fmt(left), schemaId: id },
+      ]);
+    } else {
+      changeSchemas([
+        { key: 'width', value: fmt(width), schemaId: id },
+        { key: 'height', value: fmt(height), schemaId: id },
+        { key: 'position.y', value: fmt(top), schemaId: id },
+        { key: 'position.x', value: fmt(left), schemaId: id },
+      ]);
+    }
 
     const targetSchema = schemasList[pageCursor].find((schema) => schema.id === id);
 
@@ -220,14 +250,14 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
     guides[index] && guides[index].getGuides().map((g) => g * ZOOM);
 
   const onClickMoveable = (e: OnClick) => {
-    e.inputEvent.stopPropagation();
+    /**e.inputEvent.stopPropagation();
     setEditing(true);
     const ic = inputRef.current;
     if (!ic) return;
     ic.focus();
     if (ic.type !== 'file') {
       ic.setSelectionRange(ic.value.length, ic.value.length);
-    }
+    }**/
   };
 
   return (
@@ -266,22 +296,31 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
           if (!isClick && removed.length > 0) {
             newActiveElements = activeElements.filter((ae) => !removed.includes(ae));
           }
-
+          setKeepRation(
+            isPressShiftKey
+              ? isPressShiftKey
+              : newActiveElements.find((item) => item.title === 'qrcode')
+              ? true
+              : false
+          );
           onEdit(newActiveElements);
         }}
       />
       <Paper
         paperRefs={paperRefs}
         scale={scale}
+        specification={specification}
         size={size}
         schemasList={schemasList}
         pageSizes={pageSizes}
+        bgSize={bgSize}
+        tonboSize={tonboSize}
         backgrounds={backgrounds}
         renderPaper={({ index, paperSize }) => (
           <>
-            {!editing && activeElements.length > 0 && (
+            {/*!editing && activeElements.length > 0 && (
               <DeleteButton activeElements={activeElements} />
-            )}
+            )
             <Guides
               paperSize={paperSize}
               horizontalRef={(e) => {
@@ -294,18 +333,26 @@ const Main = (props: Props, ref: Ref<HTMLDivElement>) => {
                   verticalGuides.current[index] = e;
                 }
               }}
-            />
+            />*/}
             {pageCursor !== index ? (
-              <Mask width={paperSize.width + RULER_HEIGHT} height={paperSize.height} />
+              <Mask width={paperSize.width} height={paperSize.height} />
             ) : (
               !editing && (
                 <Moveable
                   ref={moveable}
                   target={activeElements}
                   bounds={{ left: 0, top: 0, bottom: paperSize.height, right: paperSize.width }}
-                  horizontalGuidelines={getGuideLines(horizontalGuides.current, index)}
-                  verticalGuidelines={getGuideLines(verticalGuides.current, index)}
-                  keepRatio={isPressShiftKey}
+                  horizontalGuidelines={
+                    getGuideLines(horizontalGuides.current, index)
+                      ? getGuideLines(horizontalGuides.current, index).concat(horizontalGuidelines)
+                      : horizontalGuidelines
+                  }
+                  verticalGuidelines={
+                    getGuideLines(verticalGuides.current, index)
+                      ? getGuideLines(verticalGuides.current, index).concat(verticalGuidelines)
+                      : verticalGuidelines
+                  }
+                  keepRatio={keepRatio}
                   onDrag={onDrag}
                   onDragEnd={onDragEnd}
                   onDragGroupEnd={onDragEnds}

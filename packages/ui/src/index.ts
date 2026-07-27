@@ -1,4 +1,6 @@
 import Designer from './Designer';
+import DesignerV from "./DesignerV"
+import DesignerZ from "./DesignerZ"
 import Form from './Form';
 import Viewer from './Viewer';
 
@@ -14,7 +16,7 @@ import {
   checkDesignerProps,
   checkGenerateProps,
   validateBarcodeInput,
-} from '@pdfme/common';
+} from '@spursjp/pdfme-common';
 
 import type {
   Lang,
@@ -37,10 +39,12 @@ import type {
   UIProps,
   PreviewProps,
   DesignerProps,
-} from '@pdfme/common';
+} from '@spursjp/pdfme-common';
 
 export {
   Designer,
+  DesignerV,
+  DesignerZ,
   Viewer,
   Form,
   BLANK_PDF,

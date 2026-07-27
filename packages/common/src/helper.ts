@@ -75,13 +75,19 @@ export const getDefaultFont = (): Font => ({
 
 const uniq = <T>(array: Array<T>) => Array.from(new Set(array));
 
-const getFontNamesInSchemas = (schemas: { [key: string]: Schema }[]) =>
-  uniq(
-    schemas
-      .map((s) => Object.values(s).map((v) => (isTextSchema(v) ? v.fontName : '')))
-      .reduce((acc, cur) => acc.concat(cur), [] as (string | undefined)[])
-      .filter(Boolean) as string[]
-  );
+const getFontNamesInSchemas = (schemas: { [key: string]: Schema }[] | undefined) =>{
+  if(schemas){
+   return  uniq(
+      schemas
+        .map((s) => Object.values(s).map((v) => (isTextSchema(v) ? v.fontName : '')))
+        .reduce((acc, cur) => acc.concat(cur), [] as (string | undefined)[])
+        .filter(Boolean) as string[]
+    );
+  }else{
+    return []
+  }
+}
+ 
 
 export const checkFont = (arg: { font: Font; template: Template }) => {
   const {

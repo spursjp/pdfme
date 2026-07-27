@@ -16,28 +16,28 @@ import {
   checkInputs,
   checkUIOptions,
   checkPreviewProps,
-} from '@pdfme/common';
+} from '@spursjp/pdfme-common';
 
 const generateColumnsAndSampledataIfNeeded = (template: Template) => {
   const { schemas, columns, sampledata } = template;
 
-  const flatSchemaLength = schemas
+  const flatSchemaLength = schemas ? schemas
     .map((schema) => Object.keys(schema).length)
-    .reduce((acc, cur) => acc + cur, 0);
+    .reduce((acc, cur) => acc + cur, 0) : 0;
 
   const neetColumns = !columns || flatSchemaLength !== columns.length;
 
-  const needSampledata = !sampledata || flatSchemaLength !== Object.keys(sampledata[0]).length;
+  const needSampledata = schemas && (!sampledata || flatSchemaLength !== Object.keys(sampledata[0]).length) ;
 
   // columns
   if (neetColumns) {
-    template.columns = flatten(schemas.map((schema) => Object.keys(schema)));
+    template.columns = schemas ? flatten(schemas.map((schema) => Object.keys(schema))) : [];
   }
 
   // sampledata
   if (needSampledata) {
-    template.sampledata = [
-      schemas.reduce(
+    template.sampledata = schemas ? [
+     schemas.reduce(
         (acc, cur) =>
           Object.assign(
             acc,
@@ -47,8 +47,8 @@ const generateColumnsAndSampledataIfNeeded = (template: Template) => {
             )
           ),
         {} as { [key: string]: string }
-      ),
-    ];
+      ) ,
+    ] : [];
   }
 
   return template;
@@ -65,6 +65,10 @@ export abstract class BaseUIClass {
 
   private font: Font = getDefaultFont();
 
+  protected horizontalGuidelines:number[];
+
+  protected verticalGuidelines:number[];
+
   private readonly setSize = debounce(() => {
     if (!this.domContainer) throw Error(DESTROYED_ERR_MSG);
     this.size = {
@@ -79,8 +83,9 @@ export abstract class BaseUIClass {
   constructor(props: UIProps) {
     checkUIProps(props);
 
-    const { domContainer, template, options } = props;
-    const { lang, font } = options || {};
+    const { domContainer, template, options} = props;
+    const { lang, font, horizontalGuidelines, verticalGuidelines ,} = options || {};
+    
     this.domContainer = domContainer;
     this.template = generateColumnsAndSampledataIfNeeded(cloneDeep(template));
     this.size = {
@@ -95,6 +100,10 @@ export abstract class BaseUIClass {
     if (font) {
       this.font = font;
     }
+
+    this.horizontalGuidelines = horizontalGuidelines ? horizontalGuidelines : [];
+
+    this.verticalGuidelines = verticalGuidelines ? verticalGuidelines : []
   }
 
   protected getI18n() {
@@ -111,6 +120,14 @@ export abstract class BaseUIClass {
     return this.template;
   }
 
+  public getHorizontalGuidelines() {
+    return this.horizontalGuidelines;
+  }
+
+  public getVerticalGuidelines() {
+    return this.verticalGuidelines;
+  }
+
   public updateTemplate(template: Template) {
     checkTemplate(template);
     if (!this.domContainer) throw Error(DESTROYED_ERR_MSG);
@@ -121,7 +138,7 @@ export abstract class BaseUIClass {
 
   public updateOptions(options: UIOptions) {
     checkUIOptions(options);
-    const { lang, font } = options || {};
+    const { lang, font, horizontalGuidelines, verticalGuidelines  } = options || {};
 
     if (lang) {
       this.lang = lang;
@@ -129,6 +146,15 @@ export abstract class BaseUIClass {
     if (font) {
       this.font = font;
     }
+
+    if(horizontalGuidelines){
+      this.horizontalGuidelines = horizontalGuidelines
+    }
+
+    if(verticalGuidelines){
+      this.verticalGuidelines = verticalGuidelines
+    }
+    
     this.render();
   }
 

@@ -4,7 +4,7 @@
     "outDir": "./dist",
   },
   "paths": {
-    "@pdfme/common": [
+    "@spursjp/pdfme-common": [
       "packages/common/src"
     ]
   }

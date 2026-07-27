@@ -68,7 +68,7 @@ const ListView = (
           onEdit={onEdit}
         />
       )}
-
+    {/**
       <div
         style={{
           display: 'flex',
@@ -111,7 +111,7 @@ const ListView = (
             {i18n('bulkUpdateFieldName')}
           </u>
         )}
-      </div>
+      </div> */}
       <Divider />
     </div>
   );
